@@ -67,6 +67,7 @@ class LinksCheck(Check):
         extractor = _LinkExtractor()
         extractor.feed(response.text)
 
+        page_url = response.url.split("#")[0].rstrip("/")
         base_host = urlparse(url).netloc
         same_origin = set()
         for raw in extractor.links:
@@ -74,6 +75,9 @@ class LinksCheck(Check):
             parsed = urlparse(absolute)
             if parsed.scheme not in ("http", "https"):
                 continue  # skip mailto:, tel:, javascript:, ...
+            clean = absolute.split("#")[0].rstrip("/")
+            if not clean or clean == page_url:
+                continue  # fragment-only (#section) or self link — not worth checking
             if parsed.netloc == base_host:
                 same_origin.add(absolute.split("#")[0])
 

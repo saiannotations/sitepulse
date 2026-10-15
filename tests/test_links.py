@@ -9,6 +9,7 @@ PAGE = """
 <html><body>
 <a href="/about">About</a>
 <a href="/missing">Missing</a>
+<a href="#top">Back to top (fragment-only, should be skipped)</a>
 <a href="https://other-site.com/x">External (ignored)</a>
 <a href="mailto:hi@example.com">Mail (ignored)</a>
 </body></html>
@@ -17,6 +18,7 @@ PAGE = """
 
 class FakePage:
     text = PAGE
+    url = "https://example.com/"
 
     def raise_for_status(self):
         pass
