@@ -1,7 +1,5 @@
 """Tests for CLI wiring: output formats and exit codes (checks are faked)."""
 
-from unittest.mock import patch
-
 from sitepulse.checks.base import Check, Result, Severity
 from sitepulse.cli import main
 

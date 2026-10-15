@@ -84,7 +84,9 @@ class LinksCheck(Check):
 
         broken: list[tuple[str, int | str]] = []
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-            for link, status in pool.map(lambda l: _check_one(l, timeout), to_check):
+            for link, status in pool.map(
+                lambda target: _check_one(target, timeout), to_check
+            ):
                 if isinstance(status, int):
                     if status >= 400:
                         broken.append((link, status))
