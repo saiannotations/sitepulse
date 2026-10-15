@@ -25,9 +25,9 @@ class DNSCheck(Check):
             result.add(Severity.CRITICAL, f"Could not parse a hostname from {url}.")
             return result
 
-        # 1. Does it resolve?
+        # 1. Does it resolve? getaddrinfo covers both IPv4 (A) and IPv6 (AAAA).
         try:
-            _, _, addresses = socket.gethostbyname_ex(hostname)
+            addrinfos = socket.getaddrinfo(hostname, None, type=socket.SOCK_STREAM)
         except socket.gaierror as exc:
             result.add(
                 Severity.CRITICAL,
@@ -35,6 +35,7 @@ class DNSCheck(Check):
                 hostname=hostname,
             )
             return result
+        addresses = sorted({info[4][0] for info in addrinfos})
         result.add(
             Severity.PASS,
             f"{hostname} resolves to {len(addresses)} address(es): {', '.join(addresses[:4])}.",
