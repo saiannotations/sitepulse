@@ -64,3 +64,29 @@ def test_fail_on_warning_flag(capsys, monkeypatch):
         monkeypatch,
     )
     assert code == 0  # worst is pass, below the warning threshold
+
+
+def test_redirect_chain_shown_in_human_output(capsys, monkeypatch):
+    class Redirecty(Check):
+        name = "redirecty"
+        description = "Test double."
+
+        def run(self, url, timeout=10.0):
+            result = Result(check_name=self.name)
+            result.add(
+                Severity.WARNING,
+                "Long redirect chain (2 hops).",
+                redirect_chain=[
+                    "http://example.com",
+                    "https://example.com",
+                    "https://www.example.com",
+                ],
+            )
+            return result
+
+    import sitepulse.cli as cli_module
+
+    monkeypatch.setitem(cli_module.CHECKS, "redirecty", Redirecty)
+    code, out = _run_cli(["check", "https://example.com", "--checks", "redirecty"], capsys, monkeypatch)
+    assert code == 0
+    assert "http://example.com -> https://example.com -> https://www.example.com" in out
