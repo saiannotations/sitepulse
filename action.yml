@@ -1,0 +1,42 @@
+name: "SitePulse Website Health Check"
+description: "Check a website's health: SSL expiry, broken links, security headers, mixed content, DNS."
+branding:
+  icon: "activity"
+  color: "green"
+
+inputs:
+  url:
+    description: "URL to check, e.g. https://example.com"
+    required: true
+  checks:
+    description: "Comma-separated checks to run (default: all)"
+    required: false
+    default: "ssl,http,headers,links,mixed_content,dns"
+  fail-on:
+    description: "Fail the workflow when findings reach this severity"
+    required: false
+    default: "critical"
+  python-version:
+    description: "Python version to run with"
+    required: false
+    default: "3.12"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install SitePulse
+      shell: bash
+      run: pip install -r "${{ github.action_path }}/requirements.txt"
+
+    - name: Run SitePulse
+      shell: bash
+      run: |
+        python -m sitepulse check "${{ inputs.url }}" \
+          --checks "${{ inputs.checks }}" \
+          --fail-on "${{ inputs.fail-on }}"
+      working-directory: ${{ github.action_path }}
