@@ -59,6 +59,9 @@ def print_human(url: str, results: list[Result]) -> None:
             print("  (no findings)")
         for finding in result.findings:
             print(f"  {_MARK[finding.severity]} {finding.message}")
+            chain = finding.details.get("redirect_chain")
+            if chain and len(chain) > 1:
+                print(f"           {' -> '.join(chain)}")
     print()
 
 
